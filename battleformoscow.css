@@ -67,6 +67,10 @@
     }
 */
 
-
+#map {
+   width: 764px;
+   height: 503px;
+   background-image: url('img/map.jpg');
+}
 
 

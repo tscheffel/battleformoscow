@@ -47,6 +47,11 @@ export class Game {
         this.bga.gameArea.getElement().insertAdjacentHTML('beforeend', `
             <div id="player-tables"></div>
         `);
+
+        this.bga.gameArea.getElement().insertAdjacentHTML('beforeend', `
+            <div id="map">
+            </div>
+        `);
         
         // Setting up player boards
         Object.values(gamedatas.players).forEach(player => {
@@ -61,13 +66,13 @@ export class Game {
                 playerId: player.id
             });
 
-            // example of adding a div for each player
-            document.getElementById('player-tables').insertAdjacentHTML('beforeend', `
-                <div id="player-table-${player.id}">
-                    <strong>${player.name}</strong>
-                    <div>Player zone content goes here</div>
-                </div>
-            `);
+            // // example of adding a div for each player
+            // document.getElementById('player-tables').insertAdjacentHTML('beforeend', `
+            //     <div id="player-table-${player.id}">
+            //         <strong>${player.name}</strong>
+            //         <div>Player zone content goes here</div>
+            //     </div>
+            // `);
         });
         
         // TODO: Set up your game interface here, according to "gamedatas"
