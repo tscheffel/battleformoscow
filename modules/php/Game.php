@@ -181,6 +181,9 @@ class Game extends \Bga\GameFramework\Table
         $this->reattributeColorsBasedOnPreferences($players, $gameinfos["player_colors"]);
         $this->reloadPlayersBasicInfos();
 
+        // Assign German and Soviet sides to players
+        $this->assignPlayerSides($players);
+
         // Init global values with their initial values.
 
         // Init game statistics.
@@ -197,6 +200,19 @@ class Game extends \Bga\GameFramework\Table
         $this->activeNextPlayer();
 
         return PlayerTurn::class;
+    }
+
+    /**
+     * Assign German and Soviet sides to players
+     */
+    protected function assignPlayerSides($players)
+    {
+        $player_ids = array_keys($players);
+        
+        // For now: first player gets German, second gets Soviet
+        // TODO: Add player preference support later
+        static::DbQuery("UPDATE player SET player_side='german' WHERE player_id='{$player_ids[0]}'");
+        static::DbQuery("UPDATE player SET player_side='soviet' WHERE player_id='{$player_ids[1]}'");
     }
 
     /**
