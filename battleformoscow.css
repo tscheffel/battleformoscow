@@ -74,7 +74,9 @@
 }
 
 .unit {
+    /* WAS: width: 44px; */
     width: 44px;
+    /* WAS: height: 45px; */
     height: 45px;
     background-image: url('img/units_initial_exported.png');
     background-size: 557px 325px;
@@ -82,8 +84,28 @@
     position: absolute;
 }
 
+/* Units
+ *
+ * The formula for grabbing a unit from a particular 0-based column is: X = -(C × 46 + 2)
+ *
+ * Examples:
+ *     X for column 0 => -(0 x 46 + 2) = -2px
+ *     X for column 1 => -(1 x 46 + 2) = -48px
+ *     X for column 6 => -(6 × 46 + 2) = -278 px, but -280px (a smidge rightward) looks better
+ *     X for column 9 => -(9 x 46 + 2) = -416px
+
+
 /* First Soviet unit, full strength */
 /* changing -186px to -185px causes a black horizontal line at the top of the unit and cuts off 1 pixel from the bottom of the unit image (moves the window to include the black border at the top */
-.unit.soviet-infantry {
+/* .unit.soviet-infantry {
     background-position: -2px -186px;
+} */
+/* .unit.soviet-infantry {
+    background-position: -48px -186px;
+} */
+
+/* 0-based Column 6: -(6 × 46 + 2) = -278 px, but -290px (a smidge rightward) looks better */
+.unit.soviet-infantry {
+    background-position: -280px -186px;
 }
+/* WAS: background-position: -280px -187px; */
