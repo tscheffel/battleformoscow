@@ -49,10 +49,17 @@ export class Game {
         `);
 
         this.bga.gameArea.getElement().insertAdjacentHTML('beforeend', `
-            <div id="map">
+            <div id="game_map">
             </div>
         `);
         
+        // Add coordinate display overlay
+        this.bga.gameArea.getElement().insertAdjacentHTML('beforeend', `
+            <div id="coord_display" style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); color: white; padding: 5px; font-family: monospace; pointer-events: none; z-index: 1000;">
+                Hex: -- | Pixel: --
+            </div>
+        `);
+
         // Setting up player boards
         Object.values(gamedatas.players).forEach(player => {
             // example of setting up players boards
@@ -65,21 +72,17 @@ export class Game {
                 playerCounter: 'energy',
                 playerId: player.id
             });
-
-            // // example of adding a div for each player
-            // document.getElementById('player-tables').insertAdjacentHTML('beforeend', `
-            //     <div id="player-table-${player.id}">
-            //         <strong>${player.name}</strong>
-            //         <div>Player zone content goes here</div>
-            //     </div>
-            // `);
         });
         
         // TODO: Set up your game interface here, according to "gamedatas"
-        
+
+        this.setupSovietStartingUnits();
 
         // Setup game notifications to handle (see "setupNotifications" method below)
         this.setupNotifications();
+
+        // Add mousemove tracking for coordinates
+        dojo.connect($('game_map'), 'mousemove', this, 'onMouseMove');
 
         console.log( "Ending game setup" );
     }
@@ -169,6 +172,52 @@ export class Game {
     
     */
 
+    hexToPixel(hexId) {
+        // Parse hex ID (format: CCDD where C=column, D=row)
+        const col = parseInt(hexId.substring(0, 2));
+        const row = parseInt(hexId.substring(2, 4));
+        
+        // Hex grid parameters (same as in onMouseMove)
+        const hexWidth = 57;
+        const hexHeight = 65;
+        const hexVertOffset = 33;
+        const originX = 38;
+        const originY = 230;
+        const originCol = 1;
+        const originRow = 4;
+        
+        // Calculate pixel position
+        let pixelX = originX + (col - originCol) * hexWidth;
+        let pixelY = originY + (row - originRow) * hexHeight;
+        
+        // Adjust for column offset (even columns shifted down)
+        if (col % 2 === 0) {
+            pixelY += hexVertOffset;
+        }
+        
+        // Center the unit counter (46x46) in the hex
+        pixelX -= 22;
+        pixelY -= 21;
+
+        
+        return { x: pixelX, y: pixelY };
+    }
+
+    setupSovietStartingUnits() {
+        const sovietStartHexes = ['0301','0302','0303','0304','0405','0504','0505','0506','0507','0508','0509','0510','0803'];
+        
+        sovietStartHexes.forEach(hexId => {
+            const pos = this.hexToPixel(hexId);
+            
+            const unitDiv = document.createElement('div');
+            unitDiv.className = 'unit soviet-infantry';  // Use the CSS class
+            unitDiv.id = `unit_${hexId}`;
+            unitDiv.style.left = pos.x + 'px';
+            unitDiv.style.top = pos.y + 'px';
+            
+            $('game_map').appendChild(unitDiv);
+        });
+    }
 
     ///////////////////////////////////////////////////
     //// Player's action
@@ -184,8 +233,6 @@ export class Game {
     
     */
     
-    // Example:
-    
     onCardClick( card_id ) {
         console.log( 'onCardClick', card_id );
 
@@ -197,7 +244,40 @@ export class Game {
         });        
     }
 
-    
+    onMouseMove(evt) {
+        const map = $('game_map');
+        const rect = map.getBoundingClientRect();
+        const pixelX = Math.floor(evt.clientX - rect.left);
+        const pixelY = Math.floor(evt.clientY - rect.top);
+        
+        // Hex grid parameters (from new trimmed/rotated map)
+        const hexWidth = 57;      // horizontal spacing between columns
+        const hexHeight = 65;     // vertical spacing between rows
+        const hexVertOffset = 33; // vertical offset for even columns (about half height)
+        
+        // Origin point (hex 0104 center)
+        const originX = 38;
+        const originY = 230;
+        const originCol = 1;
+        const originRow = 4;
+        
+        // Calculate column first
+        const col = Math.round((pixelX - originX) / hexWidth) + originCol;
+        
+        // Adjust Y for column offset (even columns are shifted down)
+        const adjustedY = (col % 2 === 0) ? pixelY - hexVertOffset : pixelY;
+        
+        // Calculate row
+        const row = Math.round((adjustedY - originY) / hexHeight) + originRow;
+        
+        // Format as 4-digit hex ID
+        const hexId = (col >= 1 && col <= 14 && row >= 1 && row <= 10) 
+            ? `${String(col).padStart(2, '0')}${String(row).padStart(2, '0')}`
+            : '----';
+        
+        $('coord_display').innerHTML = `Hex: ${hexId} | Pixel: ${pixelX},${pixelY}`;
+    }
+
     ///////////////////////////////////////////////////
     //// Reaction to cometD notifications
 

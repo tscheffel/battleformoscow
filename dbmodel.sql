@@ -34,3 +34,17 @@
 -- ALTER TABLE `player` ADD `player_my_custom_field` INT UNSIGNED NOT NULL DEFAULT '0';
 
 ALTER TABLE `player` ADD `player_side` varchar(16) NULL;
+
+CREATE TABLE IF NOT EXISTS `unit` (
+  `unit_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `unit_label` varchar(16) NOT NULL,      -- "19", "TU", "XLVI", etc.
+  `unit_hex` varchar(16) NOT NULL,
+  `unit_side` varchar(16) NOT NULL,       -- 'soviet' or 'german'
+  `unit_type` varchar(32) NOT NULL,       -- 'infantry', 'armor'
+  `combat_strength` tinyint unsigned NOT NULL,     -- 4, 8, 10, 12, etc.
+  `movement_points` tinyint unsigned NOT NULL,     -- 4, 6, etc.
+  `is_reduced` tinyint(1) NOT NULL DEFAULT 0,
+  `sprite_row` tinyint unsigned NOT NULL,          -- 0-based row in sprite sheet
+  `sprite_col` tinyint unsigned NOT NULL,          -- 0-based column in sprite sheet
+  PRIMARY KEY (`unit_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

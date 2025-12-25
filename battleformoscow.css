@@ -67,10 +67,23 @@
     }
 */
 
-#map {
-   width: 1063px;
-   height: 900px;
-   background-image: url('img/mapfull.png');
+#game_map {
+   width: 814px;
+   height: 688px;
+   background-image: url('img/game_map_second_source_cropped.png');
 }
 
+.unit {
+    width: 44px;
+    height: 45px;
+    background-image: url('img/units_initial_exported.png');
+    background-size: 557px 325px;
+    background-repeat: no-repeat;
+    position: absolute;
+}
 
+/* First Soviet unit, full strength */
+/* changing -186px to -185px causes a black horizontal line at the top of the unit and cuts off 1 pixel from the bottom of the unit image (moves the window to include the black border at the top */
+.unit.soviet-infantry {
+    background-position: -2px -186px;
+}
