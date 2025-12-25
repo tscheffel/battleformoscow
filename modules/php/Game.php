@@ -23,10 +23,6 @@ use Bga\GameFramework\Components\Counters\PlayerCounter;
 
 class Game extends \Bga\GameFramework\Table
 {
-    public static array $CARD_TYPES;
-
-    public PlayerCounter $playerEnergy;
-
     /**
      * Your global variables labels:
      *
@@ -40,18 +36,6 @@ class Game extends \Bga\GameFramework\Table
     {
         parent::__construct();
         $this->initGameStateLabels([]); // mandatory, even if the array is empty
-
-        $this->playerEnergy = $this->counterFactory->createPlayerCounter('energy');
-
-        self::$CARD_TYPES = [
-            1 => [
-                "card_name" => clienttranslate('Troll'), // ...
-            ],
-            2 => [
-                "card_name" => clienttranslate('Goblin'), // ...
-            ],
-            // ...
-        ];
 
         /* example of notification decorator.
         // automatically complete notification args when needed
@@ -136,7 +120,6 @@ class Game extends \Bga\GameFramework\Table
         $result["players"] = $this->getCollectionFromDb(
             "SELECT `player_id` `id`, `player_score` `score` FROM `player`"
         );
-        $this->playerEnergy->fillResult($result);
 
         // TODO: Gather all information about current game situation (visible by player $current_player_id).
 
@@ -147,10 +130,8 @@ class Game extends \Bga\GameFramework\Table
      * This method is called only once, when a new game is launched. In this method, you must setup the game
      *  according to the game rules, so that the game is ready to be played.
      */
-    protected function setupNewGame($players, $options = [])
+    protected function setupNewGame($players, $options = []): string
     {
-        $this->playerEnergy->initDb(array_keys($players), initialValue: 2);
-
         // Set the colors of the players with HTML color code. The default below is red/green/blue/orange/brown. The
         // number of colors defined here must correspond to the maximum number of players allowed for the gams.
         $gameinfos = $this->getGameinfos();
@@ -163,7 +144,7 @@ class Game extends \Bga\GameFramework\Table
                 array_shift($default_colors),
                 $player["player_canal"],
                 addslashes($player["player_name"]),
-                addslashes($player["player_avatar"]),
+                addslashes(string: $player["player_avatar"]),
             ]);
         }
 
@@ -209,10 +190,9 @@ class Game extends \Bga\GameFramework\Table
     {
         $player_ids = array_keys($players);
         
-        // For now: first player gets German, second gets Soviet
-        // TODO: Add player preference support later
-        static::DbQuery("UPDATE player SET player_side='german' WHERE player_id='{$player_ids[0]}'");
-        static::DbQuery("UPDATE player SET player_side='soviet' WHERE player_id='{$player_ids[1]}'");
+        // For now: first player gets German, second gets Soviet (later, we'll allow them to choose sides)
+        static::DbQuery("UPDATE player SET player_side='german' WHERE player_id='" . static::escapeStringForDB($player_ids[0]) . "'");
+        static::DbQuery("UPDATE player SET player_side='soviet' WHERE player_id='" . static::escapeStringForDB($player_ids[1]) . "'");
     }
 
     /**
