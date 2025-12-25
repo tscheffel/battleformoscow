@@ -24,6 +24,18 @@ export class Game {
         // Example:
         // this.myGlobalValue = 0;
 
+        // Unit display constants
+        this.UNIT_WIDTH = 44;
+        this.UNIT_HEIGHT = 45;
+
+        // Hex grid parameters
+        this.HEX_WIDTH = 57;           // horizontal spacing between columns
+        this.HEX_HEIGHT = 65;          // vertical spacing between rows
+        this.HEX_VERT_OFFSET = 33;     // vertical offset for even columns
+        this.HEX_ORIGIN_X = 38;        // pixel X of origin hex center
+        this.HEX_ORIGIN_Y = 230;       // pixel Y of origin hex center
+        this.HEX_ORIGIN_COL = 1;       // column number of origin hex
+        this.HEX_ORIGIN_ROW = 4;       // row number of origin hex
     }
     
     /*
@@ -172,33 +184,26 @@ export class Game {
     
     */
 
-    hexToPixel(hexId) {
-        // Parse hex ID (format: CCDD where C=column, D=row)
+    /**
+     * Converts a hex ID to pixel coordinates for unit placement.
+     * @param {string} hexId - Hex identifier in XXYY format (e.g., "0304")
+     * @returns {{x: number, y: number}} Pixel coordinates for centering a unit in the hex
+     */
+    hexToUnitPixelCoords(hexId) {
+        // Parse hex ID (format: XXYY where XX=column, YY=row)
         const col = parseInt(hexId.substring(0, 2));
         const row = parseInt(hexId.substring(2, 4));
         
-        // Hex grid parameters (same as in onMouseMove)
-        const hexWidth = 57;
-        const hexHeight = 65;
-        const hexVertOffset = 33;
-        const originX = 38;
-        const originY = 230;
-        const originCol = 1;
-        const originRow = 4;
+        let pixelX = this.HEX_ORIGIN_X + (col - this.HEX_ORIGIN_COL) * this.HEX_WIDTH;
+        let pixelY = this.HEX_ORIGIN_Y + (row - this.HEX_ORIGIN_ROW) * this.HEX_HEIGHT;
         
-        // Calculate pixel position
-        let pixelX = originX + (col - originCol) * hexWidth;
-        let pixelY = originY + (row - originRow) * hexHeight;
-        
-        // Adjust for column offset (even columns shifted down)
         if (col % 2 === 0) {
-            pixelY += hexVertOffset;
+            pixelY += this.HEX_VERT_OFFSET;
         }
         
-        // Center the unit counter (46x46) in the hex
-        pixelX -= 22;
-        pixelY -= 21;
-
+        // Center the unit counter in the hex (x coord seems to need shifted left 1 pixel)
+        pixelX -= this.UNIT_WIDTH / 2 + 1;  // determines pixel location for the unit's left edge
+        pixelY -= this.UNIT_HEIGHT / 2;     // determines pixel location for the unit's top edge
         
         return { x: pixelX, y: pixelY };
     }
@@ -207,7 +212,7 @@ export class Game {
         const sovietStartHexes = ['0301','0302','0303','0304','0405','0504','0505','0506','0507','0508','0509','0510','0803'];
         
         sovietStartHexes.forEach(hexId => {
-            const pos = this.hexToPixel(hexId);
+            const pos = this.hexToUnitPixelCoords(hexId);
             
             const unitDiv = document.createElement('div');
             unitDiv.className = 'unit soviet-infantry';  // Use the CSS class
@@ -250,25 +255,14 @@ export class Game {
         const pixelX = Math.floor(evt.clientX - rect.left);
         const pixelY = Math.floor(evt.clientY - rect.top);
         
-        // Hex grid parameters (from new trimmed/rotated map)
-        const hexWidth = 57;      // horizontal spacing between columns
-        const hexHeight = 65;     // vertical spacing between rows
-        const hexVertOffset = 33; // vertical offset for even columns (about half height)
-        
-        // Origin point (hex 0104 center)
-        const originX = 38;
-        const originY = 230;
-        const originCol = 1;
-        const originRow = 4;
-        
         // Calculate column first
-        const col = Math.round((pixelX - originX) / hexWidth) + originCol;
+        const col = Math.round((pixelX - this.HEX_ORIGIN_X) / this.HEX_WIDTH) + this.HEX_ORIGIN_COL;
         
         // Adjust Y for column offset (even columns are shifted down)
-        const adjustedY = (col % 2 === 0) ? pixelY - hexVertOffset : pixelY;
+        const adjustedY = (col % 2 === 0) ? pixelY - this.HEX_VERT_OFFSET : pixelY;
         
         // Calculate row
-        const row = Math.round((adjustedY - originY) / hexHeight) + originRow;
+        const row = Math.round((adjustedY - this.HEX_ORIGIN_Y) / this.HEX_HEIGHT) + this.HEX_ORIGIN_ROW;
         
         // Format as 4-digit hex ID
         const hexId = (col >= 1 && col <= 14 && row >= 1 && row <= 10) 
