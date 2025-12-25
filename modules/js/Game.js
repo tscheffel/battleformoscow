@@ -36,6 +36,9 @@ export class Game {
         this.HEX_ORIGIN_Y = 230;       // pixel Y of origin hex center
         this.HEX_ORIGIN_COL = 1;       // column number of origin hex
         this.HEX_ORIGIN_ROW = 4;       // row number of origin hex
+
+        this.START_HEXES_SOVIET = ['0301','0302','0303','0304','0405','0504','0505','0506','0507','0508','0509','0510','0803'];
+        this.START_HEXES_GERMAN = ['0103','0104','0106','0107','0201','0202','0203','0204','0205','0206','0209','0210','0803'];
     }
     
     /*
@@ -65,9 +68,21 @@ export class Game {
             </div>
         `);
         
-        // Add coordinate display overlay
-        this.bga.gameArea.getElement().insertAdjacentHTML('beforeend', `
-            <div id="coord_display" style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); color: white; padding: 5px; font-family: monospace; pointer-events: none; z-index: 1000;">
+        // // Add coordinate display overlay
+        // this.bga.gameArea.getElement().insertAdjacentHTML('beforeend', `
+        //     <div id="coord_display" style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); color: white; padding: 5px; font-family: monospace; pointer-events: none; z-index: 1000;">
+        //         Hex: -- | Pixel: --
+        //     </div>
+        // `);
+
+        // Add coordinate display above the board
+        // this.bga.gameArea.getElement().insertAdjacentHTML('beforebegin', `
+        //     <div id="coord_display" style="background: rgba(0,0,0,0.7); color: white; padding: 5px; font-family: monospace; text-align: center;">
+        //         Hex: -- | Pixel: --
+        //     </div>
+        // `);
+        this.bga.gameArea.getElement().insertAdjacentHTML('beforebegin', `
+            <div id="coord_display" style="display: inline-block; background: rgba(0,0,0,0.7); color: white; padding: 5px; font-family: monospace;">
                 Hex: -- | Pixel: --
             </div>
         `);
@@ -160,16 +175,9 @@ export class Game {
                     
         if (this.bga.gameui.isCurrentPlayerActive()) {            
             switch( stateName ) {
-                case 'PlayerTurn':    
-                const playableCardsIds = args.playableCardsIds; // returned by the argPlayerTurn
+                // TODO
 
-                // Add test action buttons in the action status bar, simulating a card click:
-                playableCardsIds.forEach(
-                    cardId => this.bga.statusBar.addActionButton(_('Play card with id ${card_id}').replace('${card_id}', cardId), () => this.onCardClick(cardId))
-                ); 
-
-                this.bga.statusBar.addActionButton(_('Pass'), () => this.bga.actions.performAction("actPass"), { color: 'secondary' }); 
-                break;
+                // break;
             }
         }
     }
@@ -209,9 +217,7 @@ export class Game {
     }
 
     setupSovietStartingUnits() {
-        const sovietStartHexes = ['0301','0302','0303','0304','0405','0504','0505','0506','0507','0508','0509','0510','0803'];
-        
-        sovietStartHexes.forEach(hexId => {
+        this.START_HEXES_SOVIET.forEach(hexId => {
             const pos = this.hexToUnitPixelCoords(hexId);
             
             const unitDiv = document.createElement('div');
@@ -237,17 +243,6 @@ export class Game {
         _ make a call to the game server
     
     */
-    
-    onCardClick( card_id ) {
-        console.log( 'onCardClick', card_id );
-
-        this.bga.actions.performAction("actPlayCard", { 
-            card_id,
-        }).then(() =>  {                
-            // What to do after the server call if it succeeded
-            // (most of the time, nothing, as the game will react to notifs / change of state instead)
-        });        
-    }
 
     onMouseMove(evt) {
         const map = $('game_map');
