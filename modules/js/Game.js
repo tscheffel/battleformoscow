@@ -29,8 +29,8 @@ export class Game {
         this.MAP_IMAGE = `${g_gamethemeurl}img/game_map_second_source_cropped.png`;  // Update with actual map filename
 
         // Unit display constants
-        this.UNIT_WIDTH = 44; //////45;
-        this.UNIT_HEIGHT = 44;  ////////////////////////45;
+        this.UNIT_WIDTH = 44;
+        this.UNIT_HEIGHT = 44;
 
         // Hex grid parameters
         this.HEX_WIDTH = 57;           // horizontal spacing between columns
@@ -40,6 +40,9 @@ export class Game {
         this.HEX_ORIGIN_Y = 230;       // pixel Y of origin hex center
         this.HEX_ORIGIN_COL = 1;       // column number of origin hex
         this.HEX_ORIGIN_ROW = 4;       // row number of origin hex
+
+        this.PANEL_GAP = 5;            // Gap in pixels between map and setup panel
+        this.GERMAN_SETUP_PANEL_WIDTH = 300;  // panel width in pixels
 
         this.START_HEXES_SOVIET = ['0301','0302','0303','0304','0405','0504','0505','0506','0507','0508','0509','0510','0803'];
         this.START_HEXES_GERMAN = ['0103','0104','0106','0107','0201','0202','0203','0204','0205','0206','0209','0210','0305','0306','0307','0309','0310','0406','0407','0408','0409','0410'];
@@ -172,19 +175,6 @@ export class Game {
             </div>
         `);
         
-        // // Add coordinate display overlay
-        // this.bga.gameArea.getElement().insertAdjacentHTML('beforeend', `
-        //     <div id="coord_display" style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); color: white; padding: 5px; font-family: monospace; pointer-events: none; z-index: 1000;">
-        //         Hex: -- | Pixel: --
-        //     </div>
-        // `);
-
-        // Add coordinate display above the board
-        // this.bga.gameArea.getElement().insertAdjacentHTML('beforebegin', `
-        //     <div id="coord_display" style="background: rgba(0,0,0,0.7); color: white; padding: 5px; font-family: monospace; text-align: center;">
-        //         Hex: -- | Pixel: --
-        //     </div>
-        // `);
         this.bga.gameArea.getElement().insertAdjacentHTML('beforebegin', `
             <div id="coord_display" style="display: inline-block; background: rgba(0,0,0,0.7); color: white; padding: 5px; font-family: monospace;">
                 Hex: -- | Pixel: --
@@ -216,8 +206,9 @@ export class Game {
         // Add click tracking for German setup
         dojo.connect($('game_map'), 'click', this, 'onMapClick');
 
-        console.log( "Setting up Soviet and German units" );
+        console.log( "Setting up Soviet units" );
         this.setupSovietStartingUnits();
+        console.log( "Setting up German units" );
         this.setupGermanUnits();
 
         console.log( "Ending game setup" );
@@ -241,18 +232,15 @@ export class Game {
         // Create unit selection panel
         const panelHTML = `
             <div id="german_setup_panel" style="
-                position: fixed;
-                right: 20px;
-                top: 100px;
                 width: 300px;
-                max-height: 600px;
+                max-height: 60vh;
                 background: rgba(40, 60, 80, 0.95);
                 border: 2px solid #666;
                 border-radius: 8px;
                 padding: 15px;
                 color: white;
                 font-family: Arial, sans-serif;
-                z-index: 1000;
+                z-index: 10;
             ">
                 <h3 style="margin: 0 0 10px 0; text-align: center;">German Setup</h3>
                 <div style="font-size: 12px; margin-bottom: 10px; text-align: center;">
@@ -284,10 +272,29 @@ export class Game {
             </div>
         `;
         
-        document.body.insertAdjacentHTML('beforeend', panelHTML);
+        // Append to game_play_area instead of document.body
+        const gamePlayArea = document.getElementById('game_play_area');
+        gamePlayArea.insertAdjacentHTML('beforeend', panelHTML);
+        
+        // DEBUG: Check if panel exists immediately
+        const testPanel = document.getElementById('german_setup_panel');
+
+        // Add close button handler
+        const closeBtn = document.getElementById('close-setup-panel');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => this.closeGermanSetupPanel());
+        }
         
         // Populate with German units
         this.populateGermanUnitPanel();
+        
+        // Give the DOM a moment to render, then position
+        setTimeout(() => {
+            this.positionPanelNextToMap();
+        }, 150);
+        
+        this.resizeHandler = this.positionPanelNextToMap.bind(this);
+        window.addEventListener('resize', this.resizeHandler);
         
         // Highlight available starting hexes
         this.highlightGermanStartingHexes();
@@ -310,18 +317,6 @@ export class Game {
             const unitDiv = document.createElement('div');
             unitDiv.id = `setup_unit_${unit.id}`;
             unitDiv.className = 'setup-unit';
-            // unitDiv.style.cssText = `
-            //     display: flex;
-            //     align-items: center;
-            //     padding: 8px;
-            //     margin: 5px 0;
-            //     background: #333;
-            //     border: 2px solid #666;
-            //     border-radius: 4px;
-            //     cursor: pointer;
-            //     transition: all 0.2s;
-            // `;
-
             unitDiv.style.cssText = `
                 cursor: pointer;
             `;
@@ -335,28 +330,35 @@ export class Game {
                 background-position: -${unit.x}px -${unit.y}px;
             `;
 
-///////////////////// ABOVE CORRECT???                 background-position: -${unit.x + 1}px -${unit.y}px;
-
-
-            // // Create unit info text
-            // const info = document.createElement('div');
-            // info.style.cssText = `
-            //     flex: 1;
-            //     font-size: 12px;
-            // `;
-            // info.innerHTML = `
-            //     <div style="font-weight: bold;">${unit.id}</div>
-            //     <div style="color: #aaa;">${unit.strength}-${unit.movement} ${unit.type}</div>
-            // `;
-            
             unitDiv.appendChild(sprite);
-            //////unitDiv.appendChild(info);
             
             // Click handler for unit selection
             unitDiv.addEventListener('click', () => this.onSetupUnitClick(unit));
             
             unitList.appendChild(unitDiv);
         });
+
+        // Auto-select first unit
+        if (fullStrengthUnits.length > 0) {
+            this.onSetupUnitClick(fullStrengthUnits[0]);
+        }
+    }
+
+    closeGermanSetupPanel() {
+        const panel = document.getElementById('german_setup_panel');
+        if (panel) {
+            panel.remove();
+        }
+        
+        // Clean up resize listener
+        if (this.resizeHandler) {
+            window.removeEventListener('resize', this.resizeHandler);
+            this.resizeHandler = null;
+        }
+        
+        // Clear highlights and selection state
+        this.clearGermanStartingHexHighlights();
+        this.selectedGermanUnit = null;
     }
 
     // Add this stub method after populateGermanUnitPanel():
@@ -383,6 +385,13 @@ export class Game {
             $('game_map').appendChild(highlightDiv);
         });
     }
+
+    clearGermanStartingHexHighlights() {
+       this.START_HEXES_GERMAN.forEach(hexId => {
+           const highlight = document.getElementById(`start_hex_${hexId}`);
+           if (highlight) highlight.remove();
+       });
+   }
 
     onMapClick(evt) {
         // Only handle clicks during German setup
@@ -612,16 +621,9 @@ export class Game {
     }
 
     onSetupUnitClick(unit) {
-        // TODO: Handle unit selection
         console.log('Unit clicked:', unit.id);
         this.germanSetupState.selectedUnit = unit;
         
-        // // Visual feedback - highlight selected unit
-        // document.querySelectorAll('.setup-unit').forEach(div => {
-        //     div.style.border = '2px solid #666';
-        // });
-        // document.getElementById(`setup_unit_${unit.id}`).style.border = '2px solid #4CAF50';
-
         // Visual feedback - highlight selected unit with outline (doesn't affect layout)
         document.querySelectorAll('.setup-unit').forEach(div => {
             div.style.outline = 'none';
@@ -754,6 +756,37 @@ export class Game {
         
         const hexId = String(col).padStart(2, '0') + String(row).padStart(2, '0');
         return hexId;
+    }
+
+    positionPanelNextToMap() {
+        // The main game area container
+        const mapContainer = document.getElementById('game_map');
+        const panel = document.getElementById('german_setup_panel');
+        
+        if (!mapContainer || !panel) {
+            console.log('Missing mapContainer or panel element!');
+            return;
+        }
+        
+        const mapRect = mapContainer.getBoundingClientRect();
+        const viewportWidth = window.innerWidth;
+        
+        panel.style.position = 'absolute';
+        panel.style.top = '0'; // Align with top of game_play_area
+        
+        // Calculate if there's enough space to dock outside the map
+        const spaceNeeded = mapRect.right + this.PANEL_GAP + this.GERMAN_SETUP_PANEL_WIDTH;
+        
+        if (spaceNeeded <= viewportWidth - 20) {
+            console.log('Docking setup panel outside map');
+            // Plenty of space - dock outside to the right
+            panel.style.left = (mapRect.right + this.PANEL_GAP) + 'px';
+        } else {
+            console.log('Overlaying setup panel on map');
+            // Tight space - overlay on right side of map
+            panel.style.left = (mapRect.right - this.GERMAN_SETUP_PANEL_WIDTH - 10) + 'px';
+            panel.style.boxShadow = '-2px 0 10px rgba(0,0,0,0.2)';
+        }
     }
 
     ///////////////////////////////////////////////////
