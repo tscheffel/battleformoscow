@@ -6,7 +6,7 @@
 
 export class UnitData {
     constructor() {
-       // German units sprite data
+        // German units sprite data
         this.GERMAN_UNITS = [
             // Row 0 - Panzer Corps (y=2)
             { x: 2, y: 2, id: 'XLVI', type: 'armor', side: 'full', strength: 10, movement: 6 },

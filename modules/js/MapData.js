@@ -152,5 +152,18 @@ export class MapData {
             "1409": {"terrain":"clear","city":null,"setupSide":null,"rail":[],"road":[],"river":[]},
             "1410": {"terrain":"clear","city":null,"setupSide":null,"rail":[],"road":[],"river":[]}
         };
+
+        // Populate setupSide based on starting hex arrays
+        this.START_HEXES_GERMAN.forEach(hexId => {
+            if (this.HEX_DATA[hexId]) {
+                this.HEX_DATA[hexId].setupSide = 'german';
+            }
+        });
+
+        this.START_HEXES_SOVIET.forEach(hexId => {
+            if (this.HEX_DATA[hexId]) {
+                this.HEX_DATA[hexId].setupSide = 'soviet';
+            }
+        });
     }
 }

@@ -8,9 +8,11 @@ export class PhaseManager {
     constructor(game) {
         this.game = game;
         
+        this.MAX_PHASE = 8;
+
         // Game state tracking
         this.currentTurn = 1;
-        this.currentPhase = 1;  // 1-8 (see phase list below)
+        this.currentPhase = 1;
         this.activePlayer = null;  // Will be set from gamedatas
         
         // Phase definitions for reference
@@ -26,32 +28,62 @@ export class PhaseManager {
         };
     }
 
+    /**
+     * Closes the phase notification panel.
+     */
     closePhasePanel() {
         const panel = document.getElementById('phase_panel');
         if (panel) panel.remove();
     }
 
+    /**
+     * Ends the current phase and advances to the next phase.
+     */    
+    endCurrentPhase() {
+        console.log('Ending phase', this.currentPhase);
+        
+        // Advance to next phase
+        this.currentPhase++;
+        
+        // If past last phase, advance turn and reset to phase 1
+        if (this.currentPhase > this.MAX_PHASE) {
+            this.currentPhase = 1;
+            this.currentTurn++;
+        }
+        
+        // Update UI, etc.
+        this.updatePhaseControlPanel();
+    }
+
+    /**
+     * Hides the phase control panel.
+     */
     hidePhaseControlPanel() {
         const panel = document.getElementById('phase_control_panel');
         if (panel) panel.remove();
     }
 
-    endCurrentPhase() {
-        console.log('Ending phase', this.currentPhase);
-        // TODO: Validate phase completion, advance to next phase
-    }
-
+    /**
+     * Resets all moves made during the current phase.
+     */    
     resetAllMoves() {
         console.log('Reset all moves');
         // TODO: Implement reset logic
     }
 
+    /**
+     * Displays the phase control panel with turn/phase info and action buttons.
+     */
     showPhaseControlPanel() {
-        // Remove any existing panel
+        // Remove any existing panel (prevents duplicate listeners)
         const existingPanel = document.getElementById('phase_control_panel');
         if (existingPanel) existingPanel.remove();
         
         const phaseInfo = this.PHASES[this.currentPhase];
+        if (!phaseInfo) {
+            console.error('Invalid phase:', this.currentPhase);
+            return;
+        }
         
         const panelHTML = `
             <div id="phase_control_panel">
@@ -79,7 +111,21 @@ export class PhaseManager {
         });
     }
 
+    /**
+     * Displays a phase notification panel with optional message.
+     * @param {number} turnNumber - Current turn number
+     * @param {number} phaseNumber - Current phase number (1-8)
+     * @param {string} phaseName - Name of the phase
+     * @param {string|null} message - Optional message to display
+     * @param {boolean} canSkip - Whether the phase can be skipped
+     */
     showPhasePanel(turnNumber, phaseNumber, phaseName, message = null, canSkip = false) {
+        // Validate phase number
+        if (phaseNumber < 1 || phaseNumber > this.MAX_PHASE) {
+            console.error('Invalid phase:', phaseNumber);
+            return;
+        }
+
         // Remove any existing phase panel
         const existingPanel = document.getElementById('phase_panel');
         if (existingPanel) existingPanel.remove();
@@ -102,16 +148,28 @@ export class PhaseManager {
         });
     }
 
+    /**
+     * Undoes the last move made during the current phase.
+     */
     undoLastMove() {
         console.log('Undo last move');
         // TODO: Implement undo logic
     }
 
+    /**
+     * Updates the phase control panel to reflect current turn and phase.
+     */
     updatePhaseControlPanel() {
         const panel = document.getElementById('phase_control_panel');
         if (!panel) return;
         
         const phaseInfo = this.PHASES[this.currentPhase];
+        // validation
+        if (!phaseInfo) {
+            console.error('Invalid phase:', this.currentPhase);
+            return;
+        }
+
         panel.querySelector('h3').textContent = `Turn ${this.currentTurn} - Phase ${this.currentPhase}`;
         panel.querySelector('h4').textContent = phaseInfo.name;
     }

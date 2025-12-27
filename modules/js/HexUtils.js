@@ -8,7 +8,7 @@ export class HexUtils {
     constructor(game) {
         this.game = game;
         
-        // Hex grid parameters (cut from Game.js constructor)
+        // Hex grid parameters
         this.HEX_WIDTH = 57;           // horizontal spacing between columns
         this.HEX_HEIGHT = 65;          // vertical spacing between rows
         this.HEX_VERT_OFFSET = 33;     // vertical offset for even columns
@@ -16,6 +16,12 @@ export class HexUtils {
         this.HEX_ORIGIN_Y = 230;       // pixel Y of origin hex center
         this.HEX_ORIGIN_COL = 1;       // column number of origin hex
         this.HEX_ORIGIN_ROW = 4;       // row number of origin hex
+
+        // Hex grid boundaries
+        this.MIN_ROW = 1;
+        this.MAX_ROW = 10;
+        this.MIN_COL = 1;
+        this.MAX_COL = 14;
     }
 
     /**
@@ -42,6 +48,12 @@ export class HexUtils {
         return { x: pixelX, y: pixelY };
     }
 
+    /**
+    * Converts pixel coordinates to hex ID.
+    * @param {number} pixelX - X coordinate relative to map
+    * @param {number} pixelY - Y coordinate relative to map
+    * @returns {string|null} Hex ID in XXYY format, or null if out of bounds
+    */
     pixelToHexId(pixelX, pixelY) {
         // Convert pixel coordinates to hex column and row
         // This is the inverse of hexToUnitPixelCoords
@@ -60,7 +72,7 @@ export class HexUtils {
         let row = Math.round(adjustedY / this.HEX_HEIGHT) + this.HEX_ORIGIN_ROW;
         
         // Format as 4-digit hex ID
-        if (col < 1 || col > 9 || row < 1 || row > 10) {
+        if (col < this.MIN_COL || col > this.MAX_COL || row < this.MIN_ROW || row > this.MAX_ROW) {
             return null; // Out of bounds
         }
         

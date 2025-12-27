@@ -112,7 +112,7 @@ export class Game {
         console.log( "Setting up Soviet units" );
         this.setupManager.setupSovietStartingUnits();
         console.log( "Setting up German units" );
-        this.setupManager.setupGermanUnits();
+        this.setupManager.showGermanSetupPanel();
 
         console.log( "Ending game setup" );
     }
