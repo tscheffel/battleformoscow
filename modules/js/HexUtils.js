@@ -25,6 +25,56 @@ export class HexUtils {
     }
 
     /**
+     * Gets the six adjacent hexes for a given hex.
+     * @param {string} hexId - Hex ID in XXYY format
+     * @returns {string[]} Array of adjacent hex IDs (may be less than 6 if on map edge)
+     */
+    getAdjacentHexes(hexId) {
+        const col = parseInt(hexId.substring(0, 2));
+        const row = parseInt(hexId.substring(2, 4));
+        
+        const isEvenCol = (col % 2 === 0);
+        
+        // Direction offsets depend on whether column is even or odd
+        // For odd columns (1, 3, 5...):
+        //   N: (0, -1), NE: (+1, -1), SE: (+1, 0), S: (0, +1), SW: (-1, 0), NW: (-1, -1)
+        // For even columns (2, 4, 6...):
+        //   N: (0, -1), NE: (+1, 0), SE: (+1, +1), S: (0, +1), SW: (-1, +1), NW: (-1, 0)
+        
+        const offsets = isEvenCol ? [
+            { dir: 'N',  dcol: 0,  drow: -1 },
+            { dir: 'NE', dcol: 1,  drow: 0 },
+            { dir: 'SE', dcol: 1,  drow: 1 },
+            { dir: 'S',  dcol: 0,  drow: 1 },
+            { dir: 'SW', dcol: -1, drow: 1 },
+            { dir: 'NW', dcol: -1, drow: 0 }
+        ] : [
+            { dir: 'N',  dcol: 0,  drow: -1 },
+            { dir: 'NE', dcol: 1,  drow: -1 },
+            { dir: 'SE', dcol: 1,  drow: 0 },
+            { dir: 'S',  dcol: 0,  drow: 1 },
+            { dir: 'SW', dcol: -1, drow: 0 },
+            { dir: 'NW', dcol: -1, drow: -1 }
+        ];
+        
+        const neighbors = [];
+        
+        for (const offset of offsets) {
+            const newCol = col + offset.dcol;
+            const newRow = row + offset.drow;
+            
+            // Check if within map bounds
+            if (newCol >= this.MIN_COL && newCol <= this.MAX_COL && 
+                newRow >= this.MIN_ROW && newRow <= this.MAX_ROW) {
+                const neighborId = String(newCol).padStart(2, '0') + String(newRow).padStart(2, '0');
+                neighbors.push(neighborId);
+            }
+        }
+        
+        return neighbors;
+    }
+
+    /**
      * Converts a hex ID to pixel coordinates for unit placement.
      * @param {string} hexId - Hex identifier in XXYY format (e.g., "0304")
      * @returns {{x: number, y: number}} Pixel coordinates for centering a unit in the hex

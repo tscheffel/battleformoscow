@@ -204,8 +204,8 @@ export class SetupManager {
                 position: absolute;
                 left: ${pos.x - 1}px;
                 top: ${pos.y + 1}px;
-                width: ${this.game.UNIT_WIDTH};
-                height: ${this.game.UNIT_HEIGHT};
+                width: ${this.game.UNIT_WIDTH}px;
+                height: ${this.game.UNIT_HEIGHT}px;
                 background: rgba(100, 149, 237, 0.3);
                 border: 2px solid #6495ED;
                 border-radius: 50%;
@@ -304,8 +304,8 @@ export class SetupManager {
             position: absolute;
             left: ${pos.x - 1}px;
             top: ${pos.y + 1}px;
-            width: ${this.game.UNIT_WIDTH};
-            height: ${this.game.UNIT_HEIGHT};
+            width: ${this.game.UNIT_WIDTH}px;
+            height: ${this.game.UNIT_HEIGHT}px;
             background: rgba(100, 149, 237, 0.3);
             border: 2px solid #6495ED;
             border-radius: 50%;
@@ -480,18 +480,30 @@ export class SetupManager {
 
     /**
      * Places Soviet unit markers on their starting hexes.
-     */
+     */    
     setupSovietStartingUnits() {
         this.game.mapData.START_HEXES_SOVIET.forEach(hexId => {
             const pos = this.game.hexUtils.hexToUnitPixelCoords(hexId);
             
             const unitDiv = document.createElement('div');
-            unitDiv.className = 'unit soviet-infantry';  // Use the CSS class
+            unitDiv.className = 'unit soviet-infantry';
             unitDiv.id = `unit_${hexId}`;
             unitDiv.style.left = pos.x + 'px';
             unitDiv.style.top = pos.y + 'px';
             
             $('game_map').appendChild(unitDiv);
+            
+            // Add Soviet unit to registry (using a placeholder unit for now)
+            // TODO: Replace with actual Soviet unit data once setup is implemented
+            const sovietUnit = {
+                id: 'Soviet',
+                type: 'infantry',
+                side: 'full',
+                faction: 'soviet',
+                strength: 8,
+                movement: 4
+            };
+            this.game.unitManager.unitRegistry.set(hexId, sovietUnit);
         });
     }
 

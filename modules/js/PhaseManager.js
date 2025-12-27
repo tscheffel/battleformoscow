@@ -29,6 +29,37 @@ export class PhaseManager {
     }
 
     /**
+     * Advances to the next phase without confirmation (used for auto-skip phases).
+     * @private
+     */
+    advancePhase() {
+        // Advance to next phase
+        this.currentPhase++;
+        
+        // If past last phase, advance turn and reset to phase 1
+        if (this.currentPhase > this.MAX_PHASE) {
+            this.currentPhase = 1;
+            this.currentTurn++;
+        }
+        
+        // Clear moved units tracking for new phase
+        this.game.unitManager.unitsMovedThisPhase.clear();
+        this.game.unitManager.moveHistory = [];
+        
+        // Remove visual indicators from all units
+        document.querySelectorAll('.unit').forEach(unitDiv => {
+            unitDiv.style.filter = 'none';
+            const badge = unitDiv.querySelector('.moved-badge');
+            if (badge) badge.remove();
+        });
+
+        // Update UI
+        this.updatePhaseControlPanel();
+        this.game.unitManager.updateUndoButton();
+        this.game.unitManager.updateResetButton();
+    }
+
+    /**
      * Closes the phase notification panel.
      */
     closePhasePanel() {
@@ -42,6 +73,40 @@ export class PhaseManager {
     endCurrentPhase() {
         console.log('Ending phase', this.currentPhase);
         
+        // Check if there are units that haven't moved yet (Phase 2 or 4 only)
+        let unmoved = 0;
+        if (this.currentPhase === 2 || this.currentPhase === 4) {
+            // Count German units that haven't moved
+            const faction = this.currentPhase === 2 || this.currentPhase === 4 ? 'german' : 'soviet';
+            this.game.unitManager.unitRegistry.forEach((unit, hexId) => {
+                if (unit.faction === faction) {
+                    // In Phase 2, only count armor units
+                    if (this.currentPhase === 2) {
+                        if (unit.type === 'armor' && !this.game.unitManager.unitsMovedThisPhase.has(hexId)) {
+                            unmoved++;
+                        }
+                    } else {
+                        // Phase 4 - count all units
+                        if (!this.game.unitManager.unitsMovedThisPhase.has(hexId)) {
+                            unmoved++;
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Build confirmation message
+        let message = 'Are you sure you want to end this phase?';
+        if (unmoved > 0) {
+            const unitType = this.currentPhase === 2 ? 'panzer unit' : 'unit';
+            message += `\n\nYou still have ${unmoved} ${unitType}${unmoved > 1 ? 's' : ''} that can move.`;
+        }
+        
+        // Show confirmation
+        if (!confirm(message)) {
+            return;
+        }
+        
         // Advance to next phase
         this.currentPhase++;
         
@@ -51,8 +116,21 @@ export class PhaseManager {
             this.currentTurn++;
         }
         
-        // Update UI, etc.
+        // Clear moved units tracking for new phase
+        this.game.unitManager.unitsMovedThisPhase.clear();
+        this.game.unitManager.moveHistory = [];
+        
+        // Remove visual indicators from all units
+        document.querySelectorAll('.unit').forEach(unitDiv => {
+            unitDiv.style.filter = 'none';
+            const badge = unitDiv.querySelector('.moved-badge');
+            if (badge) badge.remove();
+        });
+
+        // Update UI
         this.updatePhaseControlPanel();
+        this.game.unitManager.updateUndoButton();
+        this.game.unitManager.updateResetButton();
     }
 
     /**
@@ -65,10 +143,15 @@ export class PhaseManager {
 
     /**
      * Resets all moves made during the current phase.
-     */    
+     */
     resetAllMoves() {
+        // Show confirmation dialog
+        if (!confirm('Are you sure you want to reset ALL moves this phase? This cannot be undone.')) {
+            return;
+        }
+        
         console.log('Reset all moves');
-        // TODO: Implement reset logic
+        this.game.unitManager.resetAllMoves();
     }
 
     /**
@@ -144,7 +227,11 @@ export class PhaseManager {
         // Add click handler
         document.getElementById('phase_panel_button').addEventListener('click', () => {
             this.closePhasePanel();
-            // TODO: Trigger next phase
+            
+            // If canSkip is true, advance to next phase
+            if (canSkip) {
+                this.advancePhase();  // Use internal method without confirmation
+            }
         });
     }
 
@@ -153,7 +240,7 @@ export class PhaseManager {
      */
     undoLastMove() {
         console.log('Undo last move');
-        // TODO: Implement undo logic
+        this.game.unitManager.undoLastMove();
     }
 
     /**

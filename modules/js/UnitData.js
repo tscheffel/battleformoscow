@@ -59,7 +59,7 @@ export class UnitData {
             { x: 416, y: 140, id: 'VI', type: 'infantry', side: 'reduced', strength: 2, movement: 4 },
             { x: 462, y: 140, id: 'XLII', type: 'infantry', side: 'reduced', strength: 2, movement: 4 },
             { x: 508, y: 140, id: 'XXXIV', type: 'infantry', side: 'reduced', strength: 2, movement: 4 },
-        ];
+        ].map(unit => ({ ...unit, faction: 'german' }));  // add german faction to all units
 
         // Soviet units sprite data
         this.SOVIET_UNITS = [
@@ -104,6 +104,6 @@ export class UnitData {
             { x: 416, y: 278, id: '5', type: 'infantry', side: 'reduced', strength: 4, movement: 4 },
             { x: 462, y: 278, id: '3', type: 'infantry', side: 'reduced', strength: 4, movement: 4 },
             { x: 508, y: 278, id: '1S', type: 'infantry', side: 'reduced', strength: 5, movement: 4 },  // 1st Shock Army reduced
-        ];
+        ].map(unit => ({ ...unit, faction: 'soviet' }));  // add soviet faction to all units
     }
 }
