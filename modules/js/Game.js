@@ -20,6 +20,9 @@ export class Game {
         console.log('battleformoscow constructor');
         this.bga = bga;
             
+        // Expose for debugging
+        window.das_game = this;
+
         // Here, you can init the global variables of your user interface
         // Example:
         // this.myGlobalValue = 0;
@@ -46,6 +49,184 @@ export class Game {
 
         this.START_HEXES_SOVIET = ['0301','0302','0303','0304','0405','0504','0505','0506','0507','0508','0509','0510','0803'];
         this.START_HEXES_GERMAN = ['0103','0104','0106','0107','0201','0202','0203','0204','0205','0206','0209','0210','0305','0306','0307','0309','0310','0406','0407','0408','0409','0410'];
+
+// {
+//     "0301": {
+//         "terrain": "clear",
+//         "city": null,
+//         "rail": [],
+//         "road": [],
+//         "river": [],
+//         "setupSide": "soviet"
+//     },
+// }
+        // terrain = 'clear', 'forest', or 'fort' |  city = null, 'small', or 'moscow' | setupSide = null, 'german' or 'soviet' | features = [] or N, NE, SE, S, SW, NW, e.g. road: ['N', 'S']
+        this.HEX_DATA = {
+            '0101': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0102': { terrain: 'clear', city: null, setupSide: null, rail: ['NE','NW'], road: [], river: [] },
+            '0103': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0104': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0105': { terrain: 'clear', city: null, setupSide: null, rail: ['NE','NW'], road: [], river: [] },
+            '0106': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0107': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0108': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0109': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0110': { terrain: 'clear', city: null, setupSide: null, rail: ['NE','NW'], road: [], river: [] },
+            '0201': { terrain: 'forest', city: null, setupSide: null, rail: ['SE','SW'], road: [], river: [] },
+            '0202': { terrain: 'forest', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0203': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0204': { terrain: 'clear', city: 'small', setupSide: null, rail: ['SE','SW'], road: [], river: [] },
+            '0205': { terrain: 'clear', city: null, setupSide: null, rail: ['N','SE'], road: [], river: [] },
+            '0206': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0207': { terrain: 'forest', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0208': { terrain: 'forest', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0209': { terrain: 'clear', city: null, setupSide: null, rail: ['SE','SW'], road: [], river: [] },
+            '0210': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0301': { terrain: 'forest', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0302': { terrain: 'clear', city: null, setupSide: null, rail: ['SE','SW'], road: [], river: [] },
+            '0303': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0304': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0305': { terrain: 'clear', city: null, setupSide: null, rail: ['NE','NW'], road: [], river: [] },
+            '0306': { terrain: 'clear', city: null, setupSide: null, rail: ['S','NW'], road: [], river: [] },
+            '0307': { terrain: 'clear', city: 'small', setupSide: null, rail: ['N','SE'], road: [], river: [] },
+            '0308': { terrain: 'forest', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0309': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0310': { terrain: 'clear', city: null, setupSide: null, rail: ['NE','NW'], road: [], river: [] },
+            '0401': { terrain: 'forest', city: null, setupSide: null, rail: ['SE','SW'], road: [], river: [] },
+            '0402': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0403': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0404': { terrain: 'clear', city: null, setupSide: null, rail: ['NE','SW'], road: [], river: [] },
+            '0405': { terrain: 'forest', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0406': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0407': { terrain: 'clear', city: null, setupSide: null, rail: ['SE','NW'], road: [], river: [] },
+            '0408': { terrain: 'forest', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0409': { terrain: 'forest', city: null, setupSide: null, rail: ['NE','SW'], road: [], river: [] },
+            '0410': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0501': { terrain: 'fort', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0502': { terrain: 'fort', city: null, setupSide: null, rail: ['NE','NW'], road: [], river: [] },
+            '0503': { terrain: 'fort', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0504': { terrain: 'fort', city: null, setupSide: null, rail: ['NE','SW'], road: [], river: [] },
+            '0505': { terrain: 'fort', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0506': { terrain: 'fort', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0507': { terrain: 'fort', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0508': { terrain: 'clear', city: null, setupSide: null, rail: ['S','NW'], road: [], river: [] },
+            '0509': { terrain: 'clear', city: 'small', setupSide: null, rail: ['NE','SE','S','SW'], road: [], river: [] },
+            '0510': { terrain: 'forest', city: null, setupSide: null, rail: ['N','S'], road: [], river: [] },
+            '0601': { terrain: 'clear', city: 'small', setupSide: null, rail: ['SE','S','SW'], road: [], river: [] },
+            '0602': { terrain: 'clear', city: null, setupSide: null, rail: ['N','S'], road: [], river: [] },
+            '0603': { terrain: 'clear', city: 'small', setupSide: null, rail: ['N','SE','SW'], road: [], river: [] },
+            '0604': { terrain: 'forest', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0605': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0606': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0607': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0608': { terrain: 'clear', city: null, setupSide: null, rail: ['NE','SW'], road: [], river: [] },
+            '0609': { terrain: 'clear', city: null, setupSide: null, rail: ['SE','NW'], road: [], river: [] },
+            '0610': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0701': { terrain: 'forest', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0702': { terrain: 'forest', city: null, setupSide: null, rail: ['SE','NW'], road: [], river: [] },
+            '0703': { terrain: 'forest', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0704': { terrain: 'forest', city: null, setupSide: null, rail: ['NE','NW'], road: [], river: [] },
+            '0705': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0706': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0707': { terrain: 'clear', city: null, setupSide: null, rail: ['NE','S'], road: [], river: [] },
+            '0708': { terrain: 'forest', city: null, setupSide: null, rail: ['N','SW'], road: [], river: [] },
+            '0709': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0710': { terrain: 'clear', city: null, setupSide: null, rail: ['NE','NW'], road: [], river: [] },
+            '0801': { terrain: 'fort', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0802': { terrain: 'fort', city: null, setupSide: null, rail: ['SE','NW'], road: [], river: [] },
+            '0803': { terrain: 'fort', city: 'small', setupSide: null, rail: ['NE','SW'], road: [], river: [] },
+            '0804': { terrain: 'fort', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0805': { terrain: 'fort', city: 'small', setupSide: null, rail: ['NE','S'], road: [], river: [] },
+            '0806': { terrain: 'forest', city: null, setupSide: null, rail: ['N','SW'], road: [], river: [] },
+            '0807': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0808': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0809': { terrain: 'clear', city: 'small', setupSide: null, rail: ['NE','S','SW'], road: [], river: [] },
+            '0810': { terrain: 'clear', city: null, setupSide: null, rail: ['N','S'], road: [], river: [] },
+            '0901': { terrain: 'forest', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0902': { terrain: 'forest', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0903': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0904': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0905': { terrain: 'forest', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0906': { terrain: 'forest', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0907': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0908': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0909': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '0910': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1001': { terrain: 'fort', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1002': { terrain: 'fort', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1003': { terrain: 'fort', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1004': { terrain: 'fort', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1005': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1006': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1007': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1008': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1009': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1010': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1101': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1102': { terrain: 'fort', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1103': { terrain: 'clear', city: 'moscow', setupSide: null, rail: [], road: [], river: [] },
+            '1104': { terrain: 'fort', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1105': { terrain: 'fort', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1106': { terrain: 'fort', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1107': { terrain: 'fort', city: 'small', setupSide: null, rail: [], road: [], river: [] },
+            '1108': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1109': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1110': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1201': { terrain: 'forest', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1202': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1203': { terrain: 'fort', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1204': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1205': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1206': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1207': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1208': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1209': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1210': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1301': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1302': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1303': { terrain: 'forest', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1304': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1305': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1306': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1307': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1308': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1309': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1310': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1401': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1402': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1403': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1404': { terrain: 'forest', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1405': { terrain: 'clear', city: 'small', setupSide: null, rail: [], road: [], river: [] },
+            '1406': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1407': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1408': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1409': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] },
+            '1410': { terrain: 'clear', city: null, setupSide: null, rail: [], road: [], river: [] }
+        };
+
+        // Game state tracking
+        this.currentTurn = 1;
+        this.currentPhase = 1;  // 1-8 (see phase list in comments)
+        this.activePlayer = null;  // Will be set from gamedatas
+        
+        // Phase definitions for reference
+        this.PHASES = {
+            1: { name: 'German Replacement Phase', player: 'german' },
+            2: { name: 'German Panzer Movement Phase', player: 'german' },
+            3: { name: 'German Combat Phase', player: 'german' },
+            4: { name: 'German Movement Phase', player: 'german' },
+            5: { name: 'Soviet Replacement Phase', player: 'soviet' },
+            6: { name: 'Soviet Rail Movement Phase', player: 'soviet' },
+            7: { name: 'Soviet Combat Phase', player: 'soviet' },
+            8: { name: 'Soviet Movement Phase', player: 'soviet' }
+        };
+
+        // Add to constructor after PHASES definition:
+        this.selectedUnit = null;
+        this.moveHistory = [];  // Track moves for undo/reset
+        this.unitsMovedThisPhase = new Set();  // Track which units have moved
+
+        this.unitRegistry = new Map();  // Maps hexId -> unit data
 
         // German units sprite data
         this.GERMAN_UNITS = [
@@ -181,6 +362,11 @@ export class Game {
             </div>
         `);
 
+        // Initialize game state from server data
+        this.currentTurn = gamedatas.gamestate.turn || 1;
+        this.currentPhase = gamedatas.gamestate.phase || 1;
+        this.activePlayer = gamedatas.gamestate.active_player;
+
         // Setting up player boards
         Object.values(gamedatas.players).forEach(player => {
             // example of setting up players boards
@@ -210,6 +396,67 @@ export class Game {
         this.setupSovietStartingUnits();
         console.log( "Setting up German units" );
         this.setupGermanUnits();
+
+// Add this temporarily in your setup() method
+const exportBtn = document.createElement('button');
+exportBtn.textContent = 'Export HEX_DATA';
+exportBtn.style.cssText = `
+    position: fixed;
+    top: 50px;
+    right: 10px;
+    padding: 10px 20px;
+    background: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 9999;
+    font-size: 14px;
+`;
+exportBtn.onclick = () => {
+    try {
+        console.log('Inside export button click');
+        
+        // Sort the HEX_DATA by column then row (numerically)
+        const sortedKeys = Object.keys(this.HEX_DATA)
+            .sort((a, b) => {
+                const colA = parseInt(a.substring(0, 2));
+                const rowA = parseInt(a.substring(2, 4));
+                const colB = parseInt(b.substring(0, 2));
+                const rowB = parseInt(b.substring(2, 4));
+                
+                // Sort by column first
+                if (colA !== colB) return colA - colB;
+                // Then by row
+                return rowA - rowB;
+            });
+        
+        console.log('Keys sorted, first 20:', sortedKeys.slice(0, 20));
+        
+        // Manually build JSON to preserve order
+        let json = '{\n';
+        sortedKeys.forEach((key, index) => {
+            const value = JSON.stringify(this.HEX_DATA[key]);
+            json += `  "${key}": ${value}`;
+            if (index < sortedKeys.length - 1) json += ',';
+            json += '\n';
+        });
+        json += '}';
+        
+        console.log('JSON built, first 500 chars:', json.substring(0, 500));
+        
+        navigator.clipboard.writeText(json).then(() => {
+            alert('HEX_DATA copied to clipboard!');
+        }).catch(err => {
+            console.log('Copy failed:', err);
+            console.log(json);
+            alert('Could not copy - check console');
+        });
+    } catch(err) {
+        console.error('Export error:', err);
+    }
+};
+document.body.appendChild(exportBtn);
 
         console.log( "Ending game setup" );
     }
@@ -246,6 +493,17 @@ export class Game {
                 <div style="font-size: 12px; margin-bottom: 10px; text-align: center;">
                     Select unit, then click a highlighted hex
                 </div>
+                <button id="auto_place_german_units" style="
+                    width: 100%;
+                    padding: 8px;
+                    background: #2196F3;
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 12px;
+                    margin-bottom: 10px;
+                ">Auto-place All Units</button>
                 <div id="german_unit_list" style="
                     max-height: 450px;
                     overflow-y: auto;
@@ -276,8 +534,11 @@ export class Game {
         const gamePlayArea = document.getElementById('game_play_area');
         gamePlayArea.insertAdjacentHTML('beforeend', panelHTML);
         
-        // DEBUG: Check if panel exists immediately
-        const testPanel = document.getElementById('german_setup_panel');
+        // Add auto-place button handler HERE
+        const autoPlaceBtn = document.getElementById('auto_place_german_units');
+        if (autoPlaceBtn) {
+            autoPlaceBtn.addEventListener('click', () => this.autoPlaceGermanUnits());
+        }
 
         // Add close button handler
         const closeBtn = document.getElementById('close-setup-panel');
@@ -361,6 +622,68 @@ export class Game {
         this.selectedGermanUnit = null;
     }
 
+    showPhaseControlPanel() {
+        // Remove any existing panel
+        const existingPanel = document.getElementById('phase_control_panel');
+        if (existingPanel) existingPanel.remove();
+        
+        const phaseInfo = this.PHASES[this.currentPhase];
+        
+        const panelHTML = `
+            <div id="phase_control_panel">
+                <h3>Turn ${this.currentTurn} - Phase ${this.currentPhase}</h3>
+                <h4>${phaseInfo.name}</h4>
+                <button id="end_phase_button">End Phase</button>
+                <button id="undo_move_button" disabled>Undo Last Move</button>
+                <button id="reset_moves_button" disabled>Reset All Moves</button>
+            </div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', panelHTML);
+        
+        // Add button handlers
+        document.getElementById('end_phase_button').addEventListener('click', () => {
+            this.endCurrentPhase();
+        });
+        
+        document.getElementById('undo_move_button').addEventListener('click', () => {
+            this.undoLastMove();
+        });
+        
+        document.getElementById('reset_moves_button').addEventListener('click', () => {
+            this.resetAllMoves();
+        });
+    }
+
+    updatePhaseControlPanel() {
+        const panel = document.getElementById('phase_control_panel');
+        if (!panel) return;
+        
+        const phaseInfo = this.PHASES[this.currentPhase];
+        panel.querySelector('h3').textContent = `Turn ${this.currentTurn} - Phase ${this.currentPhase}`;
+        panel.querySelector('h4').textContent = phaseInfo.name;
+    }
+
+    hidePhaseControlPanel() {
+        const panel = document.getElementById('phase_control_panel');
+        if (panel) panel.remove();
+    }
+
+    endCurrentPhase() {
+        console.log('Ending phase', this.currentPhase);
+        // TODO: Validate phase completion, advance to next phase
+    }
+
+    undoLastMove() {
+        console.log('Undo last move');
+        // TODO: Implement undo logic
+    }
+
+    resetAllMoves() {
+        console.log('Reset all moves');
+        // TODO: Implement reset logic
+    }
+
     // Add this stub method after populateGermanUnitPanel():
     highlightGermanStartingHexes() {
         this.START_HEXES_GERMAN.forEach(hexId => {
@@ -423,6 +746,82 @@ export class Game {
         
         // Place the unit
         this.placeGermanUnit(this.germanSetupState.selectedUnit, hexId);
+    }
+
+    enableUnitSelection() {
+        // Get all German units on the map
+        const germanUnits = document.querySelectorAll('.unit.german-unit');
+        
+        germanUnits.forEach(unitDiv => {
+            unitDiv.addEventListener('click', (evt) => {
+                evt.stopPropagation();
+                this.onUnitClick(unitDiv);
+            });
+            // Add visual indication that units are clickable
+            unitDiv.style.cursor = 'pointer';
+        });
+    }
+
+    onUnitClick(unitDiv) {
+        const hexId = unitDiv.id.replace('unit_', '');
+        const unit = this.unitRegistry.get(hexId);
+    
+        if (!unit) {
+            console.log('Unit data not found for hex:', hexId);
+            return;
+        }
+
+        console.log('Unit clicked:', unit.id, 'Type:', unit.type, 'at hex:', hexId);
+
+        // Check if unit can move in current phase
+        if (this.currentPhase === 2) {
+            // German Panzer Movement Phase - only armor can move
+            if (unit.type !== 'armor') {
+                console.log('Only panzers can move in Phase 2');
+                return;
+            }
+        }
+        
+        // Check if unit already moved this phase (except panzers in phase 4)
+        if (this.unitsMovedThisPhase.has(hexId) && this.currentPhase !== 4) {
+            console.log('Unit already moved this phase');
+            return;
+        }
+        
+        // Select the unit
+        this.selectUnit(unitDiv, hexId, unit);
+    }
+
+    selectUnit(unitDiv, hexId, unit) {
+        // Deselect previous unit
+        if (this.selectedUnit) {
+            this.selectedUnit.div.style.outline = 'none';
+            this.clearMovementRange();
+        }
+        
+        // Select new unit
+        this.selectedUnit = {
+            div: unitDiv,
+            hexId: hexId,
+            unit: unit
+        };
+        
+        // Visual feedback
+        unitDiv.style.outline = '3px solid yellow';
+        
+        // Show movement range
+        this.showMovementRange(hexId, unit);
+        console.log('Unit selected at hex:', hexId);
+    }
+
+    showMovementRange(hexId, unit) {
+        // TODO: Calculate and display valid movement hexes
+        console.log('Showing movement range for hex:', hexId, 'Unit:', unit.id, 'Movement:', unit.movement);
+    }
+
+    clearMovementRange() {
+        // TODO: Remove movement range highlights
+        console.log('Clearing movement range');
     }
 
     placeGermanUnit(unit, hexId) {
@@ -498,6 +897,19 @@ export class Game {
         this.checkGermanSetupComplete();
     }
 
+    autoPlaceGermanUnits() {
+        // Get all full strength units
+        const fullStrengthUnits = this.GERMAN_UNITS.filter(u => u.side === 'full');
+        
+        // Place each unit on a starting hex
+        fullStrengthUnits.forEach((unit, index) => {
+            if (index < this.START_HEXES_GERMAN.length) {
+                const hexId = this.START_HEXES_GERMAN[index];
+                this.placeGermanUnit(unit, hexId);
+            }
+        });
+    }
+
     checkGermanSetupComplete() {
         // Check if all 22 units are placed
         if (this.germanSetupState.placedUnits.size === 22) {
@@ -517,6 +929,18 @@ export class Game {
     finishGermanSetup() {
         console.log('Finishing German setup...');
         
+        // Remove click handlers from all placed German units
+        this.germanSetupState.placedUnits.forEach((unit, hexId) => {
+            this.unitRegistry.set(hexId, unit);
+
+            const unitDiv = document.getElementById(`unit_${hexId}`);
+            if (unitDiv) {
+                // Clone the node to remove all event listeners
+                const newUnitDiv = unitDiv.cloneNode(true);
+                unitDiv.parentNode.replaceChild(newUnitDiv, unitDiv);
+            }
+        });
+
         // Remove the setup panel
         const panel = document.getElementById('german_setup_panel');
         if (panel) panel.remove();
@@ -531,6 +955,21 @@ export class Game {
         
         // TODO: Proceed to next game phase
         console.log('German setup complete - ready for game to begin!');
+
+        // Show phase control panel
+        this.showPhaseControlPanel();
+        
+        // Show phase 1 notification
+        this.showPhasePanel(
+            this.currentTurn, 
+            this.currentPhase, 
+            this.PHASES[this.currentPhase].name, 
+            'No German replacements on Turn 1. This phase is skipped.', 
+            true
+        );
+
+        // Enable unit selection for gameplay
+        this.enableUnitSelection();
     }
 
     pickupGermanUnit(hexId) {
@@ -787,6 +1226,34 @@ export class Game {
             panel.style.left = (mapRect.right - this.GERMAN_SETUP_PANEL_WIDTH - 10) + 'px';
             panel.style.boxShadow = '-2px 0 10px rgba(0,0,0,0.2)';
         }
+    }
+
+    showPhasePanel(turnNumber, phaseNumber, phaseName, message = null, canSkip = false) {
+        // Remove any existing phase panel
+        const existingPanel = document.getElementById('phase_panel');
+        if (existingPanel) existingPanel.remove();
+        
+        const panelHTML = `
+            <div id="phase_panel">
+                <h2>Turn ${turnNumber} - Phase ${phaseNumber}</h2>
+                <h3>${phaseName}</h3>
+                ${message ? `<p>${message}</p>` : ''}
+                <button id="phase_panel_button">${canSkip ? 'Proceed to Next Phase' : 'OK'}</button>
+            </div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', panelHTML);
+        
+        // Add click handler
+        document.getElementById('phase_panel_button').addEventListener('click', () => {
+            this.closePhasePanel();
+            // TODO: Trigger next phase
+        });
+    }
+
+    closePhasePanel() {
+        const panel = document.getElementById('phase_panel');
+        if (panel) panel.remove();
     }
 
     ///////////////////////////////////////////////////

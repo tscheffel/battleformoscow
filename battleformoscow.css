@@ -73,6 +73,129 @@
    background-image: url('img/game_map_second_source_cropped.png');
 }
 
+/* Phase control panel - stays visible during gameplay */
+#phase_control_panel {
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    width: 250px;
+    background: rgba(40, 60, 80, 0.95);
+    border: 2px solid #666;
+    border-radius: 8px;
+    padding: 15px;
+    color: white;
+    font-family: Arial, sans-serif;
+    z-index: 100;
+}
+
+#phase_control_panel h3 {
+    margin: 0 0 5px 0;
+    font-size: 16px;
+    color: #FFD700;
+}
+
+#phase_control_panel h4 {
+    margin: 0 0 15px 0;
+    font-size: 14px;
+    font-weight: normal;
+}
+
+#phase_control_panel button {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 8px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+#phase_control_panel button:last-child {
+    margin-bottom: 0;
+}
+
+#end_phase_button {
+    background: #4CAF50;
+    color: white;
+}
+
+#end_phase_button:hover {
+    background: #45a049;
+}
+
+#undo_move_button {
+    background: #ff9800;
+    color: white;
+}
+
+#undo_move_button:hover {
+    background: #e68900;
+}
+
+#reset_moves_button {
+    background: #f44336;
+    color: white;
+}
+
+#reset_moves_button:hover {
+    background: #da190b;
+}
+
+#phase_control_panel button:disabled {
+    background: #666;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* Phase notification panel */
+#phase_panel {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    background: rgba(40, 60, 80, 0.98);
+    border: 3px solid #666;
+    border-radius: 12px;
+    padding: 25px;
+    color: white;
+    font-family: Arial, sans-serif;
+    z-index: 1000;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+
+#phase_panel h2 {
+    margin: 0 0 15px 0;
+    color: #FFD700;
+}
+
+#phase_panel h3 {
+    margin: 0 0 20px 0;
+}
+
+#phase_panel p {
+    margin: 0 0 20px 0;
+    font-size: 14px;
+    color: #ccc;
+}
+
+#phase_panel_button {
+    padding: 12px 30px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+#phase_panel_button:hover {
+    background: #45a049;
+}
+
 .unit {
     /* WAS: width: 44px; */
     width: 44px;
