@@ -11,6 +11,10 @@ export class SetupManager {
         this.germanSetupState = null;
         this.resizeHandler = null;
         this.finishSetupHandlerAdded = false;
+
+        // Panel layout constants
+        this.PANEL_GAP = 5;                   // Gap in pixels between map and setup panel
+        this.GERMAN_SETUP_PANEL_WIDTH = 300;  // panel width in pixels
     }
 
     // CUT these methods from Game.js and paste here:
@@ -28,6 +32,7 @@ export class SetupManager {
     // - populateGermanUnitPanel()
     // - positionPanelNextToMap()
     // - setupGermanUnits()
+    // - setupSovietStartingUnits()
 
     addUnitToPanel(unit) {
         const unitList = document.getElementById('german_unit_list');
@@ -76,18 +81,20 @@ export class SetupManager {
     }
 
     autoPlaceGermanUnits() {
-        // Get all full strength units
-        const fullStrengthUnits = this.game.unitData.GERMAN_UNITS.filter(u => u.side === 'full');
+        // Get all full strength units that are still available
+        const fullStrengthUnits = this.game.unitData.GERMAN_UNITS.filter(u => 
+            u.side === 'full' && this.germanSetupState.availableUnits.has(u.id)
+        );
         
-        // Place each unit on a starting hex
+        // Get available starting hexes (not occupied)
+        const availableHexes = this.game.mapData.START_HEXES_GERMAN.filter(hexId =>
+            !this.germanSetupState.placedUnits.has(hexId)
+        );
+        
+        // Place each available unit on an available hex
         fullStrengthUnits.forEach((unit, index) => {
-            if (index < this.game.mapData.START_HEXES_GERMAN.length) {
-                const hexId = this.game.mapData.START_HEXES_GERMAN[index];
-
-                // Only place if hex is not already occupied
-                if (!this.germanSetupState.placedUnits.has(hexId)) {
-                    this.placeGermanUnit(unit, hexId);
-                }                
+            if (index < availableHexes.length) {
+                this.placeGermanUnit(unit, availableHexes[index]);
             }
         });
     }
@@ -429,16 +436,16 @@ export class SetupManager {
         panel.style.top = '0'; // Align with top of game_play_area
         
         // Calculate if there's enough space to dock outside the map
-        const spaceNeeded = mapRect.right + this.game.PANEL_GAP + this.game.GERMAN_SETUP_PANEL_WIDTH;
+        const spaceNeeded = mapRect.right + this.PANEL_GAP + this.GERMAN_SETUP_PANEL_WIDTH;
         
         if (spaceNeeded <= viewportWidth - 20) {
             console.log('Docking setup panel outside map');
             // Plenty of space - dock outside to the right
-            panel.style.left = (mapRect.right + this.game.PANEL_GAP) + 'px';
+            panel.style.left = (mapRect.right + this.PANEL_GAP) + 'px';
         } else {
             console.log('Overlaying setup panel on map');
             // Tight space - overlay on right side of map
-            panel.style.left = (mapRect.right - this.game.GERMAN_SETUP_PANEL_WIDTH - 10) + 'px';
+            panel.style.left = (mapRect.right - this.GERMAN_SETUP_PANEL_WIDTH - 10) + 'px';
             panel.style.boxShadow = '-2px 0 10px rgba(0,0,0,0.2)';
         }
     }
@@ -527,5 +534,19 @@ export class SetupManager {
         
         // Highlight available starting hexes
         this.highlightGermanStartingHexes();
+    }
+
+    setupSovietStartingUnits() {
+        this.game.mapData.START_HEXES_SOVIET.forEach(hexId => {
+            const pos = this.game.hexUtils.hexToUnitPixelCoords(hexId);
+            
+            const unitDiv = document.createElement('div');
+            unitDiv.className = 'unit soviet-infantry';  // Use the CSS class
+            unitDiv.id = `unit_${hexId}`;
+            unitDiv.style.left = pos.x + 'px';
+            unitDiv.style.top = pos.y + 'px';
+            
+            $('game_map').appendChild(unitDiv);
+        });
     }
 }
