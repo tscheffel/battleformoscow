@@ -45,6 +45,16 @@ export class Game {
         // Unit display constants
         this.UNIT_WIDTH = 44;
         this.UNIT_HEIGHT = 44;
+
+        // Validate river data on startup
+        const validation = this.mapData.validateRiverData();
+        if (!validation.valid) {
+            console.error('❌ RIVER DATA ERRORS FOUND:');
+            validation.errors.forEach(e => console.error('  ' + e));
+            alert(`River data is not valid!\n\n${validation.errors.length} error(s) found.\n\nCheck console for details.`);
+        } else {
+            console.log(`✅ River data validated: ${validation.checked} hexsides checked, all symmetrical`);
+        }
     }
     
     /*
