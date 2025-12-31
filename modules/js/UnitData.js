@@ -69,8 +69,8 @@ export class UnitData {
             { x: 94, y: 186, id: '43', type: 'infantry', side: 'full', strength: 8, movement: 4 },
             { x: 140, y: 186, id: '49', type: 'infantry', side: 'full', strength: 8, movement: 4 },
             { x: 186, y: 186, id: '50', type: 'infantry', side: 'full', strength: 8, movement: 4 },
-            { x: 232, y: 186, id: 'TU', type: 'armor', side: 'full', strength: 8, movement: 4 },
-            { x: 278, y: 186, id: 'TU', type: 'armor', side: 'reduced', strength: 4, movement: 4 },
+            // { x: 232, y: 186, id: 'TU', type: 'armor', side: 'full', strength: 8, movement: 4 },
+            // { x: 278, y: 186, id: 'TU', type: 'armor', side: 'reduced', strength: 4, movement: 4 },
             { x: 324, y: 186, id: '50', type: 'infantry', side: 'reduced', strength: 4, movement: 4 },
             { x: 370, y: 186, id: '49', type: 'infantry', side: 'reduced', strength: 4, movement: 4 },
             { x: 416, y: 186, id: '43', type: 'infantry', side: 'reduced', strength: 4, movement: 4 },
@@ -104,6 +104,6 @@ export class UnitData {
             { x: 416, y: 278, id: '5', type: 'infantry', side: 'reduced', strength: 4, movement: 4 },
             { x: 462, y: 278, id: '3', type: 'infantry', side: 'reduced', strength: 4, movement: 4 },
             { x: 508, y: 278, id: '1S', type: 'infantry', side: 'reduced', strength: 5, movement: 4 },  // 1st Shock Army reduced
-        ].map(unit => ({ ...unit, faction: 'soviet' }));  // add soviet faction to all units
+        ].map(unit => ({ ...unit, faction: 'soviet', x: unit.x + 2, y: unit.y + 1 }));  // add soviet faction to all units, FIX X SPRITE CAPTURE WINDOW
     }
 }

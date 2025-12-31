@@ -482,28 +482,35 @@ export class SetupManager {
      * Places Soviet unit markers on their starting hexes.
      */    
     setupSovietStartingUnits() {
-        this.game.mapData.START_HEXES_SOVIET.forEach(hexId => {
+        // Get reduced-strength Soviet units (excluding 1st Shock Army)
+        const reducedSovietUnits = this.game.unitData.SOVIET_UNITS.filter(u => 
+            u.side === 'reduced' && u.id !== '1S'
+        );
+        
+        this.game.mapData.START_HEXES_SOVIET.forEach((hexId, index) => {
             const pos = this.game.hexUtils.hexToUnitPixelCoords(hexId);
+            
+            // Use actual Soviet reduced units (cycling through available units)
+            const unit = reducedSovietUnits[index % reducedSovietUnits.length];
             
             const unitDiv = document.createElement('div');
             unitDiv.className = 'unit soviet-infantry';
             unitDiv.id = `unit_${hexId}`;
-            unitDiv.style.left = pos.x + 'px';
-            unitDiv.style.top = pos.y + 'px';
+            unitDiv.style.cssText = `
+                position: absolute;
+                left: ${pos.x}px;
+                top: ${pos.y}px;
+                width: ${this.game.UNIT_WIDTH}px;
+                height: ${this.game.UNIT_HEIGHT}px;
+                background-image: url('${this.game.SPRITE_SHEET}');
+                background-position: -${unit.x}px -${unit.y}px;
+                z-index: 10;
+            `;
             
             $('game_map').appendChild(unitDiv);
             
-            // Add Soviet unit to registry (using a placeholder unit for now)
-            // TODO: Replace with actual Soviet unit data once setup is implemented
-            const sovietUnit = {
-                id: 'Soviet',
-                type: 'infantry',
-                side: 'full',
-                faction: 'soviet',
-                strength: 8,
-                movement: 4
-            };
-            this.game.unitManager.unitRegistry.set(hexId, sovietUnit);
+            // Add to registry
+            this.game.unitManager.unitRegistry.set(hexId, unit);
         });
     }
 
@@ -511,11 +518,19 @@ export class SetupManager {
      * Initializes and displays the German setup interface including panel, units, and hex highlights.
      */
     showGermanSetupPanel() {
+        // Get map position for sizing
+        const mapContainer = document.getElementById('game_map');
+        const mapRect = mapContainer.getBoundingClientRect();
+        
+        // Calculate max height for units list (account for header, buttons, padding)
+        // Header (~50px) + Auto-place button (~50px) + Finish button (~60px) + padding (~60px) = ~220px
+        const maxUnitsListHeight = mapRect.height - 220;
+        
         // Create unit selection panel
         const panelHTML = `
             <div id="german_setup_panel" style="
                 width: 300px;
-                max-height: 60vh;
+                max-height: ${mapRect.height}px;
                 background: rgba(40, 60, 80, 0.95);
                 border: 2px solid #666;
                 border-radius: 8px;
@@ -523,6 +538,8 @@ export class SetupManager {
                 color: white;
                 font-family: Arial, sans-serif;
                 z-index: 10;
+                display: flex;
+                flex-direction: column;
             ">
                 <h3 style="margin: 0 0 10px 0; text-align: center;">German Setup</h3>
                 <div style="font-size: 12px; margin-bottom: 10px; text-align: center;">
@@ -538,9 +555,10 @@ export class SetupManager {
                     cursor: pointer;
                     font-size: 12px;
                     margin-bottom: 10px;
+                    flex-shrink: 0;
                 ">Auto-place All Units</button>
                 <div id="german_unit_list" style="
-                    max-height: 450px;
+                    max-height: ${maxUnitsListHeight}px;
                     overflow-y: auto;
                     margin-bottom: 10px;
                     display: flex;
@@ -548,6 +566,7 @@ export class SetupManager {
                     gap: 10px;
                     background: white;
                     padding: 5px;
+                    flex: 1;
                 ">
                     <!-- Units will be added in here -->
                 </div>
@@ -561,6 +580,7 @@ export class SetupManager {
                     cursor: pointer;
                     font-size: 14px;
                     display: none;
+                    flex-shrink: 0;
                 ">Finish Setup</button>
             </div>
         `;

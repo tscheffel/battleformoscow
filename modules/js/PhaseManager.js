@@ -53,6 +53,11 @@ export class PhaseManager {
             if (badge) badge.remove();
         });
 
+        // Enable combat selection for combat phases
+        if (this.currentPhase === 3 || this.currentPhase === 7) {
+            this.game.combatManager.enableCombatSelection();
+        }
+
         // Update UI
         this.updatePhaseControlPanel();
         this.game.unitManager.updateUndoButton();
@@ -107,30 +112,13 @@ export class PhaseManager {
             return;
         }
         
-        // Advance to next phase
-        this.currentPhase++;
-        
-        // If past last phase, advance turn and reset to phase 1
-        if (this.currentPhase > this.MAX_PHASE) {
-            this.currentPhase = 1;
-            this.currentTurn++;
+        // Clear combat state if LEAVING a combat phase
+        if (this.currentPhase === 3 || this.currentPhase === 7) {
+            this.game.combatManager.clearBattles();
         }
-        
-        // Clear moved units tracking for new phase
-        this.game.unitManager.unitsMovedThisPhase.clear();
-        this.game.unitManager.moveHistory = [];
-        
-        // Remove visual indicators from all units
-        document.querySelectorAll('.unit').forEach(unitDiv => {
-            unitDiv.style.filter = 'none';
-            const badge = unitDiv.querySelector('.moved-badge');
-            if (badge) badge.remove();
-        });
 
-        // Update UI
-        this.updatePhaseControlPanel();
-        this.game.unitManager.updateUndoButton();
-        this.game.unitManager.updateResetButton();
+        // Advance to next phase (handles increment, UI updates, etc.)
+        this.advancePhase();
     }
 
     /**

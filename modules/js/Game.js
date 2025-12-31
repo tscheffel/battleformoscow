@@ -12,9 +12,10 @@
  * BattleForMoscow user interface script
  * 
  * In this file, you are describing the logic of your user interface, in Javascript language.
- *
+ * 
  */
 
+import { CombatManager } from './CombatManager.js';
 import { HexUtils } from './HexUtils.js';
 import { MapData } from './MapData.js';
 import { PhaseManager } from './PhaseManager.js';
@@ -28,6 +29,7 @@ export class Game {
         this.bga = bga;
             
         // Initialize modules
+        this.combatManager = new CombatManager(this);
         this.hexUtils = new HexUtils(this);
         this.mapData = new MapData();
         this.phaseManager = new PhaseManager(this);

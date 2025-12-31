@@ -199,7 +199,7 @@ export class UnitManager {
     onUnitClick(unitDiv) {
         const hexId = unitDiv.id.replace('unit_', '');
         const unit = this.unitRegistry.get(hexId);
-    
+
         if (!unit) {
             console.log('Unit data not found for hex:', hexId);
             return;
@@ -207,6 +207,23 @@ export class UnitManager {
 
         console.log('Unit clicked:', unit.id, 'Type:', unit.type, 'at hex:', hexId);
 
+        // Phase 3 or 7: Combat mode
+        if (this.game.phaseManager.currentPhase === 3 || this.game.phaseManager.currentPhase === 7) {
+            const currentFaction = this.game.combatManager.getCurrentCombatFaction();
+            const enemyFaction = this.game.combatManager.getEnemyFaction();
+
+            // Check if this is a friendly unit (attacker) or enemy unit (defender)
+            if (unit.faction === currentFaction) {
+                // Friendly unit - select as attacker
+                this.game.combatManager.onUnitClick(unitDiv);
+            } else if (unit.faction === enemyFaction) {
+                // Enemy unit - declare as defender
+                this.game.combatManager.onDefenderClick(unitDiv);
+            }
+            return;
+        }
+
+        // Movement phases (2, 4, 6, 8)
         // Check if unit can move in current phase
         if (this.game.phaseManager.currentPhase === 2) {
             // German Panzer Movement Phase - only armor can move
@@ -215,13 +232,13 @@ export class UnitManager {
                 return;
             }
         }
-        
+
         // Check if unit already moved this phase (except panzers in phase 4)
         if (this.unitsMovedThisPhase.has(hexId) && this.game.phaseManager.currentPhase !== 4) {
             console.log('Unit already moved this phase');
             return;
         }
-        
+
         // Select the unit
         this.selectUnit(unitDiv, hexId, unit);
     }
