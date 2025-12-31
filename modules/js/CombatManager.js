@@ -170,8 +170,14 @@ export class CombatManager {
      * Removes all combat-related visual highlights from the map.
      */
     clearAllCombatHighlights() {
-        // Clear attacker selection highlights
+        // Restore original positions for nudged attackers
         document.querySelectorAll('.attacker-selected').forEach(el => {
+            if (el.dataset.originalLeft) {
+                el.style.left = el.dataset.originalLeft;
+                el.style.top = el.dataset.originalTop;
+                delete el.dataset.originalLeft;
+                delete el.dataset.originalTop;
+            }
             el.style.outline = 'none';
             el.classList.remove('attacker-selected');
         });
@@ -393,6 +399,17 @@ export class CombatManager {
             return;
         }
 
+        // Check if clicking the already-selected temporary attacker (deselect)
+        if (this.temporaryAttacker === hexId) {
+            console.log('Deselecting temporary attacker');
+            unitDiv.style.outline = 'none';
+            this.temporaryAttacker = null;
+            
+            // Clear odds badges
+            document.querySelectorAll('.odds-badge').forEach(el => el.remove());
+            return;
+        }
+
         // Check if unit is already committed to a battle
         if (this.unitsAttackingThisPhase.has(hexId)) {
             console.log('Removing unit from its battle');
@@ -449,7 +466,7 @@ export class CombatManager {
 
         console.log(`Temporary attacker selected: ${hexId} - now click an adjacent enemy`);
     }
-    
+
     /**
      * Removes an attacker from a declared battle.
      * @param {number} battleIndex - Index of the battle in declaredBattles array
@@ -523,7 +540,19 @@ export class CombatManager {
         for (const adjHexId of adjacentHexes) {
             const unit = this.game.unitManager.unitRegistry.get(adjHexId);
             if (unit && unit.faction === enemyFaction) {
-                const odds = this.calculateOdds(adjHexId, [attackerHexId]);
+                // Check if this defender already has a battle declared
+                const existingBattle = this.declaredBattles.find(b => b.defender === adjHexId);
+                
+                let attackerHexIds;
+                if (existingBattle) {
+                    // Include existing attackers PLUS the new one
+                    attackerHexIds = [...existingBattle.attackers, attackerHexId];
+                } else {
+                    // Just the new attacker
+                    attackerHexIds = [attackerHexId];
+                }
+                
+                const odds = this.calculateOdds(adjHexId, attackerHexIds);
                 if (odds) {
                     this.showOddsBadge(adjHexId, odds);
                 }
@@ -564,12 +593,36 @@ export class CombatManager {
                 defenderDiv.appendChild(marker);
             }
 
-            // Mark attackers with battle number
+            // Get defender position for nudging calculation
+            const defenderPos = this.game.hexUtils.hexToUnitPixelCoords(battle.defender);
+
+            // Mark attackers with battle number and nudge toward defender
             battle.attackers.forEach(attackerHexId => {
                 const attackerDiv = document.getElementById(`unit_${attackerHexId}`);
                 if (attackerDiv) {
                     attackerDiv.style.outline = '3px solid #ff4444';
                     attackerDiv.classList.add('attacker-selected');
+
+                    // Store original position if not already stored
+                    if (!attackerDiv.dataset.originalLeft) {
+                        attackerDiv.dataset.originalLeft = attackerDiv.style.left;
+                        attackerDiv.dataset.originalTop = attackerDiv.style.top;
+                    }
+
+                    // Calculate nudge direction toward defender
+                    const attackerPos = this.game.hexUtils.hexToUnitPixelCoords(attackerHexId);
+                    const dx = defenderPos.x - attackerPos.x;
+                    const dy = defenderPos.y - attackerPos.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    // Nudge 12 pixels toward defender
+                    const nudgeAmount = 12;
+                    const nudgeX = (dx / distance) * nudgeAmount;
+                    const nudgeY = (dy / distance) * nudgeAmount;
+                    
+                    // Apply nudge
+                    attackerDiv.style.left = (attackerPos.x + nudgeX) + 'px';
+                    attackerDiv.style.top = (attackerPos.y + nudgeY) + 'px';
 
                     const marker = document.createElement('div');
                     marker.className = 'battle-marker';
